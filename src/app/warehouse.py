@@ -35,7 +35,8 @@ def initialize_warehouse_tables():
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         description TEXT,
-        capacity REAL NOT NULL
+        capacity REAL NOT NULL,
+        used_capacity REAL DEFAULT 0.0
     );
     """)
 
@@ -89,14 +90,17 @@ def total_volume_used(warehouse_id: int):
     """
     conn = sqlite3.connect(DATABASE_PATH)
     cursor = conn.cursor()
-    cursor.execute("""
-    SELECT SUM(Item.volume * WarehouseItem.quantity) AS total_volume
-    FROM WarehouseItem
-    INNER JOIN Item ON WarehouseItem.item_id = Item.id
-    WHERE WarehouseItem.warehouse_id = ?;
-    """, (warehouse_id,))
-    total_volume = cursor.fetchone()[0]
-    print(f"Total volume in warehouse {warehouse_id}: {total_volume} m³")
+
+    cursor.execute("SELECT used_capacity FROM Warehouse WHERE id = ?",
+                   (warehouse_id,))
+    used_capacity = cursor.fetchone()
+
+    if used_capacity:
+        print(f"Total volume used in Warehouse {warehouse_id}: "
+              f"{used_capacity[0]}")
+    else:
+        print(f"Warehouse with ID {warehouse_id} does not exist.")
+
     conn.close()
 
 
