@@ -156,6 +156,118 @@ def set_item_volume(item_id, new_volume):
 
     conn.commit()
     conn.close()
+    
+def add_item(name, description, volume):
+    if volume <= 0:
+        print("the input should be positive")
+        return
+
+    conn = sqlite3.connect(DATABASE_PATH)
+    c = conn.cursor()
+
+    try:
+        # kasus nama item tidak boleh sama, jika sama maka ada info
+        c.execute("SELECT id FROM items WHERE name = ?", (name,))
+        if c.fetchone():
+            print(f"Item with name '{name}' already exists.")
+            return
+
+        # nambahin item secara regular
+        c.execute("INSERT INTO items (name, description, volume) VALUES (?, ?, ?)",
+                  (name, description, volume))
+        conn.commit()
+        print(f"Item '{name}' added successfully.")
+    except sqlite3.Error as e:
+        print(f"Error adding item: {e}")
+    finally:
+        conn.close()
+
+
+def update_item(item_id, name=None, description=None, volume=None):
+    conn = sqlite3.connect(DATABASE_PATH)
+    c = conn.cursor()
+
+    try:
+        # checking kalau ada item
+        c.execute("SELECT * FROM items WHERE id = ?", (item_id,))
+        if not c.fetchone():
+            print(f"Item with id '{item_id}' does not exist.")
+            return
+
+        # update query
+        updates = []
+        params = []
+
+        if name:
+            updates.append("name = ?")
+            params.append(name)
+        if description:
+            updates.append("description = ?")
+            params.append(description)
+        if volume:
+            if volume <= 0:
+                print("Volume must be a positive number.")
+                return
+            updates.append("volume = ?")
+            params.append(volume)
+
+        if not updates:
+            print("No fields to update.")
+            return
+
+        query = f"UPDATE items SET {', '.join(updates)} WHERE id = ?"
+        params.append(item_id)
+
+        c.execute(query, tuple(params))
+        conn.commit()
+        print(f"Item with ID '{item_id}' updated successfully.")
+    except sqlite3.Error as e:
+        print(f"Error updating item: {e}")
+    finally:
+        conn.close()
+
+
+def read_item(item_id):
+    conn = sqlite3.connect(DATABASE_PATH)
+    c = conn.cursor()
+
+    try:
+        c.execute("SELECT * FROM items WHERE id = ?", (item_id,))
+        item = c.fetchone()
+        if item:
+            print(f"Item Details: ID={item[0]}, Name={item[1]}, "
+                  f"Description={item[2]}, Volume={item[3]}")
+        else:
+            print(f"Item with id '{item_id}' does not exist.")
+    except sqlite3.Error as e:
+        print(f"Error reading item: {e}")
+    finally:
+        conn.close()
+
+
+def delete_item(item_id):
+    """
+    Menghapus item berdasarkan ID
+    """
+    conn = sqlite3.connect(DATABASE_PATH)
+    c = conn.cursor()
+
+    try:
+        # check kalau item ada
+        c.execute("SELECT * FROM items WHERE id = ?", (item_id,))
+        if not c.fetchone():
+            print(f"Item with id '{item_id}' does not exist.")
+            return
+
+        # hapus item secara reguler
+        c.execute("DELETE FROM items WHERE id = ?", (item_id,))
+        conn.commit()
+        print(f"Item with ID '{item_id}' deleted successfully.")
+    except sqlite3.Error as e:
+        print(f"Error deleting item: {e}")
+    finally:
+        conn.close()
+
 
 # def main():
 #     print(get_quantity('apple'))
