@@ -16,10 +16,18 @@ def create_item_table():
     """
     Membuat tabel item di database
     """
+    # Buat folder database jika belum ada
+    if not os.path.exists(DATABASE_DIR):
+        os.makedirs(DATABASE_DIR)
+
+    # Debug: Pastikan path benar
+    print(f"Database path: {DATABASE_PATH}")
+
+    # Lanjutkan membuat tabel
     conn = sqlite3.connect(DATABASE_PATH)
     c = conn.cursor()
 
-    c.execute("""CREATE TABLE items (
+    c.execute("""CREATE TABLE IF NOT EXISTS items (
                 id integer primary key autoincrement,
                 name text,
                 description text,
@@ -270,12 +278,43 @@ def delete_item(item_id):
 
 
 # def main():
-#     print(get_quantity('apple'))
-#     print(get_item_id('apple'))
-#     print(get_name(1))
-#     print(get_quantity('avocado'))
-#     print(get_item_id('avocado'))
-#     print(get_name(2))
+#     create_item_table()
+
+#     print("\n=== Add Items ===")
+#     add_item("Apple", "A fresh red apple", 2)
+#     add_item("Banana", "A sweet yellow banana", 1)
+#     add_item("Orange", "A juicy orange", 3)
+#     add_item("Apple", "Duplicate name test", 5)  # Test duplicate name
+
+#     print("\n=== Read Items ===")
+#     read_item(1) 
+#     read_item(2)  
+#     read_item(4) 
+    
+#     print("\n=== Update Item ===")
+#     update_item(1, name="Green Apple", description="A fresh green apple")
+#     read_item(1)  
+#     update_item(3, volume=4)  
+#     read_item(3) 
+#     update_item(10, name="Nonexistent")  
+
+#     print("\n=== Get Item Details ===")
+#     print(f"Item Name by ID 1: {get_item_name(1)}") 
+#     print(f"Item ID by Name 'Banana': {get_item_id('Banana')}") 
+#     print(f"Item Description by ID 2: {get_item_description(2)}")  
+#     print(f"Item Volume by ID 3: {get_item_volume(3)}") 
+
+
+#     print("\n=== Delete Items ===")
+#     delete_item(2)  
+#     read_item(2) 
+#     delete_item(10)  
+
+#     print("\n=== Final Items ===")
+#     read_item(1) 
+#     read_item(3) 
+#     read_item(2)  
+
 
 # if __name__ == "__main__":
 #     main()
