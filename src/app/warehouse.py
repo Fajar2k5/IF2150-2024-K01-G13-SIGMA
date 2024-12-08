@@ -176,8 +176,8 @@ def delete_warehouse(warehouse_id: int):
             print(f"Warehouse with ID {warehouse_id} does not exist.")
             return
 
-        # Delete associated records in WarehouseItem
-        cursor.execute("DELETE FROM WarehouseItem WHERE warehouse_id = ?",
+        # Delete associated records in Warehouse
+        cursor.execute("DELETE FROM Warehouse WHERE id = ?",
                        (warehouse_id,))
         # Delete the warehouse
         cursor.execute("DELETE FROM Warehouse WHERE id = ?", (warehouse_id,))
