@@ -40,29 +40,6 @@ def initialize_warehouse_tables():
     );
     """)
 
-    # Create Item table
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS Item (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        image TEXT,
-        volume REAL NOT NULL
-    );
-    """)
-
-    # Create WarehouseItem table
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS WarehouseItem (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        warehouse_id INTEGER NOT NULL,
-        item_id INTEGER NOT NULL,
-        quantity INTEGER NOT NULL,
-        FOREIGN KEY (warehouse_id) REFERENCES Warehouse (id),
-        FOREIGN KEY (item_id) REFERENCES Item (id),
-        UNIQUE (warehouse_id, item_id)
-    );
-    """)
-
     conn.commit()
     print("Tables created successfully.")
     conn.close()
