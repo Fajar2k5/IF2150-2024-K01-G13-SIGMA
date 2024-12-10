@@ -12,7 +12,7 @@ DATABASE_DIR = os.path.join(BASE_DIR, "database")
 DATABASE_PATH = os.path.join(DATABASE_DIR, "item.db")
 
 
-def create_item_table():
+def initialize_item_table():
     """
     Membuat tabel item di database
     """
@@ -273,6 +273,47 @@ def delete_item(item_id):
         print(f"Item with ID '{item_id}' deleted successfully.")
     except sqlite3.Error as e:
         print(f"Error deleting item: {e}")
+    finally:
+        conn.close()
+
+
+
+def add_item(name, description, volume):
+    """
+    Menambahkan item baru ke dalam tabel
+    """
+    conn = sqlite3.connect(DATABASE_PATH)
+    c = conn.cursor()
+
+    try:
+        c.execute("""INSERT INTO items (
+                  name, description, volume) VALUES (?, ?, ?)""",
+                  (name, description, volume))
+        conn.commit()
+        print(f"Item '{name}' berhasil ditambahkan.")
+    except sqlite3.Error as e:
+        print(f"Error saat menambahkan item: {e}")
+    finally:
+        conn.close()
+
+
+def delete_item(item_id):
+    """
+    Menghapus item dari tabel berdasarkan id
+    """
+    conn = sqlite3.connect(DATABASE_PATH)
+    c = conn.cursor()
+
+    try:
+        c.execute("SELECT * FROM items WHERE id = ?", (item_id,))
+        if c.fetchone() is None:
+            print(f"Item dengan id '{item_id}' tidak ditemukan.")
+        else:
+            c.execute("DELETE FROM items WHERE id = ?", (item_id,))
+            conn.commit()
+            print(f"Item dengan id '{item_id}' berhasil dihapus.")
+    except sqlite3.Error as e:
+        print(f"Error saat menghapus item: {e}")
     finally:
         conn.close()
 

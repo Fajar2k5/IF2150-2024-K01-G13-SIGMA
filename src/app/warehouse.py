@@ -40,29 +40,6 @@ def initialize_warehouse_tables():
     );
     """)
 
-    # Create Item table
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS Item (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        image TEXT,
-        volume REAL NOT NULL
-    );
-    """)
-
-    # Create WarehouseItem table
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS WarehouseItem (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        warehouse_id INTEGER NOT NULL,
-        item_id INTEGER NOT NULL,
-        quantity INTEGER NOT NULL,
-        FOREIGN KEY (warehouse_id) REFERENCES Warehouse (id),
-        FOREIGN KEY (item_id) REFERENCES Item (id),
-        UNIQUE (warehouse_id, item_id)
-    );
-    """)
-
     conn.commit()
     print("Tables created successfully.")
     conn.close()
@@ -199,8 +176,8 @@ def delete_warehouse(warehouse_id: int):
             print(f"Warehouse with ID {warehouse_id} does not exist.")
             return
 
-        # Delete associated records in WarehouseItem
-        cursor.execute("DELETE FROM WarehouseItem WHERE warehouse_id = ?",
+        # Delete associated records in Warehouse
+        cursor.execute("DELETE FROM Warehouse WHERE id = ?",
                        (warehouse_id,))
         # Delete the warehouse
         cursor.execute("DELETE FROM Warehouse WHERE id = ?", (warehouse_id,))

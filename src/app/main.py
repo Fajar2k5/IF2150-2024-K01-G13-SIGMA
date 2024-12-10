@@ -1,20 +1,40 @@
 """
 main program
 """
-from warehouse import initialize_warehouse_tables, add_warehouse
-from warehouse import total_volume_used, print_all_warehouse
+import warehouse
+import item
+import warehouseitem
 
-if __name__ == "__main__":
+
+def main():
+    """
+    CONTOH OPERASI
+    """
     # Create the tables
-    initialize_warehouse_tables()
+    warehouse.initialize_warehouse_tables()
 
     # Add some warehouses
-    add_warehouse("Warehouse A", "This is warehouse A", 1000)
-    add_warehouse("Warehouse B", "This is warehouse B", 1500)
-    add_warehouse("Warehouse C", "This is warehouse C", 2000)
+    warehouse.add_warehouse("Warehouse A", "This is warehouse A", 1000)
+    warehouse.add_warehouse("Warehouse B", "This is warehouse B", 1500)
+    warehouse.add_warehouse("Warehouse C", "This is warehouse C", 2000)
 
-    # Print all warehouses
-    print_all_warehouse()
+    # Initialize item table
+    item.initialize_item_table()
 
-    # Calculate the total volume used in Warehouse B
-    total_volume_used(2)  # Warehouse B
+    # Add some items
+    item.add_item("Item A", "This is item A", 10)
+    item.add_item("Item B", "This is item B", 20)
+    item.add_item("Item C", "This is item C", 30)
+
+    # Create warehouse items
+    warehouseitem.initialize_warehouseitem_table()
+
+    # Add items to warehouse
+    warehouseitem.add_item_to_warehouse(1, 1, 5)
+    warehouseitem.add_item_to_warehouse(1, 2, 10)
+    warehouseitem.add_item_to_warehouse(2, 2, 10)
+    warehouseitem.add_item_to_warehouse(2, 3, 20)
+
+
+if __name__ == "__main__":
+    main()
