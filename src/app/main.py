@@ -14,9 +14,9 @@ def main():
     warehouse.initialize_warehouse_tables()
 
     # Add some warehouses
-    warehouse.add_warehouse("Warehouse A", "This is warehouse A", 1000)
-    warehouse.add_warehouse("Warehouse B", "This is warehouse B", 1500)
-    warehouse.add_warehouse("Warehouse C", "This is warehouse C", 2000)
+    warehouse.add_warehouse("Warehouse M", "This is warehouse A", 1000)
+    warehouse.add_warehouse("Warehouse N", "This is warehouse B", 1500)
+    warehouse.add_warehouse("Warehouse O", "This is warehouse C", 2000)
 
     # Initialize item table
     item.initialize_item_table()

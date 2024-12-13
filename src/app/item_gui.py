@@ -6,6 +6,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 import item
 
+
 class ItemGUI:
     """
     Main GUI untuk item management
@@ -14,6 +15,15 @@ class ItemGUI:
         self.root = root
         self.root.title("Item Management")
         self.root.geometry("800x600")
+
+        # Set default font for all widgets
+        default_font = ('Microsoft YaHei UI Light', 10)
+        self.root.option_add('*Font', default_font)
+
+        # Apply font to specific widget types
+        style = ttk.Style()
+        style.configure('Treeview', font=default_font)
+        style.configure('Treeview.Heading', font=default_font)
 
         # Create main frame
         self.main_frame = ttk.Frame(self.root, padding="10")
@@ -61,19 +71,79 @@ class ItemGUI:
         """
         Melakukan setup untuk tombol-tombol CRUD
         """
-        # CRUD Buttons
-        ttk.Button(self.main_frame, text="Add Item",
-                   command=self.show_add_dialog).grid(
-                    row=1, column=0, pady=10, padx=5)
-        ttk.Button(self.main_frame, text="Edit Item",
-                   command=self.show_edit_dialog).grid(
-                    row=1, column=1, pady=10, padx=5)
-        ttk.Button(self.main_frame, text="Delete Item",
-                   command=self.delete_item).grid(
-                    row=1, column=2, pady=10, padx=5)
-        ttk.Button(self.main_frame, text="Refresh",
-                   command=self.refresh_item_list).grid(
-                    row=1, column=3, pady=10, padx=5)
+        button_font = ('Microsoft YaHei UI Light', 10)
+        button_width = 120
+        button_height = 40
+        button_radius = 10
+
+        # Use tk.Frame instead of ttk.Frame
+        button_frame = tk.Frame(self.main_frame, bg='#F0F0F0')
+        button_frame.grid(row=1, column=0, columnspan=4, pady=10)
+
+        # CRUD Buttons with consistent styling
+        buttons = [
+            ("Add Item", self.show_add_dialog),
+            ("Edit Item", self.show_edit_dialog),
+            ("Delete Item", self.delete_item),
+            ("Refresh", self.refresh_item_list),
+            ("Expand", self.show_expand_dialog)
+        ]
+
+        for i, (text, command) in enumerate(buttons):
+            btn = RoundedButton(
+                button_frame,
+                text=text,
+                command=command,
+                width=button_width,
+                height=button_height,
+                corner_radius=button_radius,
+                color='#6666FF',
+                hover_color='#7777FF',
+                font=button_font
+            )
+            btn.grid(row=0, column=i, padx=5, pady=5)
+
+    def show_expand_dialog(self):
+        """
+        Menampilkan semua data item yang dipilih dalam jendela pop-up
+        """
+        selected = self.item_tree.selection()
+        if not selected:
+            messagebox.showwarning(
+                "Selection Required", "Please select an item to expand")
+            return
+
+        items = self.item_tree.item(selected[0])
+        values = items['values']
+
+        # Create pop-up window
+        expand_dialog = tk.Toplevel(self.root)
+        expand_dialog.title("Expand Item")
+        expand_dialog.geometry("400x300")
+
+        # Display item details
+        ttk.Label(expand_dialog, text="ID:").grid(row=0, column=0, pady=5, padx=5)
+        ttk.Label(expand_dialog, text=values[0], anchor=tk.W).grid(row=0, column=1, pady=5, padx=5, sticky=tk.W)
+
+        ttk.Label(expand_dialog, text="Name:").grid(row=1, column=0, pady=5, padx=5)
+        ttk.Label(expand_dialog, text=values[1], anchor=tk.W).grid(row=1, column=1, pady=5, padx=5, sticky=tk.W)
+
+        ttk.Label(expand_dialog, text="Description:").grid(row=2, column=0, pady=5, padx=5)
+        
+        # Scrollable description
+        desc_frame = ttk.Frame(expand_dialog)
+        desc_frame.grid(row=2, column=1, pady=5, padx=5)
+        desc_text = tk.Text(desc_frame, wrap=tk.WORD, height=10, width=30)
+        desc_text.insert(tk.END, values[2])
+        desc_text.config(state=tk.DISABLED)
+        desc_text.grid(row=0, column=0)
+
+        desc_scrollbar = ttk.Scrollbar(desc_frame, orient=tk.VERTICAL, command=desc_text.yview)
+        desc_text.config(yscrollcommand=desc_scrollbar.set)
+        desc_scrollbar.grid(row=0, column=1, sticky=(tk.N, tk.S))
+
+        ttk.Label(expand_dialog, text="Volume:").grid(row=3, column=0, pady=5, padx=5)
+        ttk.Label(expand_dialog, text=values[3], anchor=tk.W).grid(row=3, column=1, pady=5, padx=5, sticky=tk.W)
 
     def refresh_item_list(self):
         """
@@ -118,7 +188,7 @@ class ItemGUI:
         values = items['values']
 
         dialog = ItemDialog(self.root, "Edit item",
-                                 values[1], values[2], values[3])
+                            values[1], values[2], values[3])
         if dialog.result:
             name, desc, volume = dialog.result
             item.update_item(values[0], name, desc, float(volume))
@@ -212,6 +282,81 @@ class ItemDialog:
 
         self.result = (name, desc, volume)
         self.dialog.destroy()
+
+
+class RoundedButton(tk.Canvas):
+    """
+    Custom button widget with rounded corners
+    """
+    def __init__(self, parent, text, command, width=150, height=40,
+                 corner_radius=10, padding=0, color="#6666FF",
+                 text_color="white",
+                 hover_color="#7777FF", font=None):
+        super().__init__(parent, width=width, height=height,
+                         highlightthickness=0, bg=parent.cget("bg"))
+
+        self.command = command
+        self.color = color
+        self.hover_color = hover_color
+
+        # Create rounded rectangle
+        self.rect = self.round_rectangle(padding, padding,
+                                         width-padding*2, height-padding*2,
+                                         corner_radius, fill=color, outline="")
+
+        # Add text
+        self.text = self.create_text(width/2, height/2, text=text,
+                                     fill=text_color, font=font)
+
+        # Bind events
+        self.bind("<Enter>", self.on_enter)
+        self.bind("<Leave>", self.on_leave)
+        self.bind("<Button-1>", self.on_click)
+
+    def round_rectangle(self, x1, y1, x2, y2, radius, **kwargs):
+        """
+        Create a rounded rectangle
+        """
+        points = [x1+radius, y1,
+                  x1+radius, y1,
+                  x2-radius, y1,
+                  x2-radius, y1,
+                  x2, y1,
+                  x2, y1+radius,
+                  x2, y1+radius,
+                  x2, y2-radius,
+                  x2, y2-radius,
+                  x2, y2,
+                  x2-radius, y2,
+                  x2-radius, y2,
+                  x1+radius, y2,
+                  x1+radius, y2,
+                  x1, y2,
+                  x1, y2-radius,
+                  x1, y2-radius,
+                  x1, y1+radius,
+                  x1, y1+radius,
+                  x1, y1]
+        return self.create_polygon(points, smooth=True, **kwargs)
+
+    def on_enter(self, e):
+        """
+        Change color on mouse enter
+        """
+        self.itemconfig(self.rect, fill=self.hover_color)
+
+    def on_leave(self, e):
+        """
+        Change color back on mouse leave
+        """
+        self.itemconfig(self.rect, fill=self.color)
+
+    def on_click(self, e):
+        """
+        Execute command on button click
+        """
+        if self.command:
+            self.command()
 
 
 def main():

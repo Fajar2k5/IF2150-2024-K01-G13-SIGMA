@@ -14,7 +14,7 @@ import sqlite3
 # src directory
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATABASE_DIR = os.path.join(BASE_DIR, "database")
-DATABASE_PATH = os.path.join(DATABASE_DIR, "warehouse.db")
+DATABASE_PATH = os.path.join(DATABASE_DIR, "database.db")
 
 
 def initialize_warehouse_tables():

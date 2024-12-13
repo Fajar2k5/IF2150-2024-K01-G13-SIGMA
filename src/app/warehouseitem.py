@@ -7,9 +7,10 @@ import os
 # Define the database path relative to this script's location
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATABASE_DIR = os.path.join(BASE_DIR, "database")
-WAREHOUSE_PATH = os.path.join(DATABASE_DIR, "warehouse.db")
-ITEM_PATH = os.path.join(DATABASE_DIR, "item.db")
-WAREITEM_PATH = os.path.join(DATABASE_DIR, "warehouseitem.db")
+# DATABASE_PATH = os.path.join(DATABASE_DIR, "warehouse.db")
+# ITEM_PATH = os.path.join(DATABASE_DIR, "item.db")
+# DATABASE_PATH = os.path.join(DATABASE_DIR, "warehouseitem.db")
+DATABASE_PATH = os.path.join(DATABASE_DIR, "database.db")
 
 
 def initialize_warehouseitem_table():
@@ -17,27 +18,21 @@ def initialize_warehouseitem_table():
     Membuat tabel WarehouseItem di database
     """
     # First, make sure we can access both source tables
-    item_conn = sqlite3.connect(ITEM_PATH)
-    item_cursor = item_conn.cursor()
-    item_cursor.execute("""SELECT name FROM sqlite_master
-                        WHERE type='table' AND name='items'""")
-    if not item_cursor.fetchone():
-        print("Items table not found in item database")
-        return
-    item_conn.close()
-
-    ware_conn = sqlite3.connect(WAREHOUSE_PATH)
-    ware_cursor = ware_conn.cursor()
-    ware_cursor.execute("""SELECT name FROM sqlite_master
-                        WHERE type='table' AND name='Warehouse'""")
-    if not ware_cursor.fetchone():
-        print("Warehouse table not found in warehouse database")
-        return
-    ware_conn.close()
-
-    # Now create our warehouseitem table
-    conn = sqlite3.connect(WAREITEM_PATH)
+    conn = sqlite3.connect(DATABASE_PATH)
     cursor = conn.cursor()
+    cursor.execute("""SELECT name FROM sqlite_master
+                        WHERE type='table' AND name='items'""")
+    if not cursor.fetchone():
+        print("Items table not found in item database")
+        conn.close()
+        return
+
+    cursor.execute("""SELECT name FROM sqlite_master
+                        WHERE type='table' AND name='Warehouse'""")
+    if not cursor.fetchone():
+        print("Warehouse table not found in warehouse database")
+        conn.close()
+        return
 
     cursor.execute("""CREATE TABLE IF NOT EXISTS warehouseitem (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -53,45 +48,45 @@ def initialize_warehouseitem_table():
 
 def get_item_details(item_id):
     """Helper function to get item details from item database"""
-    item_conn = sqlite3.connect(ITEM_PATH)
-    item_cursor = item_conn.cursor()
-    item_cursor.execute("SELECT volume FROM items WHERE id = ?", (item_id,))
-    result = item_cursor.fetchone()
-    item_conn.close()
+    conn = sqlite3.connect(DATABASE_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT volume FROM items WHERE id = ?", (item_id,))
+    result = cursor.fetchone()
+    conn.close()
     return result[0] if result else None
 
 
 def update_warehouse_capacity(warehouse_id, volume_change):
     """Helper function to update warehouse capacity"""
-    ware_conn = sqlite3.connect(WAREHOUSE_PATH)
-    ware_cursor = ware_conn.cursor()
+    conn = sqlite3.connect(DATABASE_PATH)
+    cursor = conn.cursor()
 
     # Get current warehouse data
-    ware_cursor.execute("""SELECT capacity, used_capacity
+    cursor.execute("""SELECT capacity, used_capacity
                           FROM Warehouse WHERE id = ?""", (warehouse_id,))
-    warehouse_data = ware_cursor.fetchone()
+    warehouse_data = cursor.fetchone()
 
     if warehouse_data is None:
-        ware_conn.close()
+        conn.close()
         return False, "Warehouse not found"
 
     capacity, used_capacity = warehouse_data
     new_used_capacity = used_capacity + volume_change
 
     if new_used_capacity > capacity:
-        ware_conn.close()
+        conn.close()
         return False, "Warehouse capacity exceeded"
 
     if new_used_capacity < 0:
-        ware_conn.close()
+        conn.close()
         return False, "Invalid volume change"
 
     # Update warehouse capacity
-    ware_cursor.execute("""UPDATE Warehouse
+    cursor.execute("""UPDATE Warehouse
                           SET used_capacity = ?
                           WHERE id = ?""", (new_used_capacity, warehouse_id))
-    ware_conn.commit()
-    ware_conn.close()
+    conn.commit()
+    conn.close()
     return True, None
 
 
@@ -118,7 +113,7 @@ def add_item_to_warehouse(warehouse_id, item_id, quantity):
         return
 
     # Add the item to warehouseitem
-    conn = sqlite3.connect(WAREITEM_PATH)
+    conn = sqlite3.connect(DATABASE_PATH)
     cursor = conn.cursor()
 
     try:
@@ -149,7 +144,7 @@ def update_item_quantity(warehouse_id, item_id, new_quantity):
         remove_item_from_warehouse(warehouse_id, item_id)
         return
 
-    conn = sqlite3.connect(WAREITEM_PATH)
+    conn = sqlite3.connect(DATABASE_PATH)
     cursor = conn.cursor()
 
     # Get current quantity
@@ -194,7 +189,7 @@ def remove_item_from_warehouse(warehouse_id, item_id):
     """
     Remove an item completely from a warehouse
     """
-    conn = sqlite3.connect(WAREITEM_PATH)
+    conn = sqlite3.connect(DATABASE_PATH)
     cursor = conn.cursor()
 
     # Get current quantity
@@ -242,7 +237,7 @@ def transfer_items(from_warehouse_id, to_warehouse_id, item_id, quantity):
         return
 
     # Check if source warehouse has enough items
-    conn = sqlite3.connect(WAREITEM_PATH)
+    conn = sqlite3.connect(DATABASE_PATH)
     cursor = conn.cursor()
 
     cursor.execute("""SELECT quantity FROM warehouseitem

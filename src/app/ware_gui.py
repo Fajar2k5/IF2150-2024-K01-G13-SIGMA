@@ -16,6 +16,15 @@ class WarehouseGUI:
         self.root.title("Warehouse Management")
         self.root.geometry("800x600")
 
+        # Set default font for all widgets
+        default_font = ('Microsoft YaHei UI Light', 10)
+        self.root.option_add('*Font', default_font)
+
+        # Apply font to specific widget types
+        style = ttk.Style()
+        style.configure('Treeview', font=default_font)
+        style.configure('Treeview.Heading', font=default_font)
+
         # Create main frame
         self.main_frame = ttk.Frame(self.root, padding="10")
         self.main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
@@ -64,19 +73,78 @@ class WarehouseGUI:
         """
         Melakukan setup untuk tombol-tombol CRUD
         """
-        # CRUD Buttons
-        ttk.Button(self.main_frame, text="Add Warehouse",
-                   command=self.show_add_dialog).grid(
-                    row=1, column=0, pady=10, padx=5)
-        ttk.Button(self.main_frame, text="Edit Warehouse",
-                   command=self.show_edit_dialog).grid(
-                    row=1, column=1, pady=10, padx=5)
-        ttk.Button(self.main_frame, text="Delete Warehouse",
-                   command=self.delete_warehouse).grid(
-                    row=1, column=2, pady=10, padx=5)
-        ttk.Button(self.main_frame, text="Refresh",
-                   command=self.refresh_warehouse_list).grid(
-                    row=1, column=3, pady=10, padx=5)
+        button_font = ('Microsoft YaHei UI Light', 10)
+        button_width = 120
+        button_height = 40
+        button_radius = 10
+
+        # Use tk.Frame instead of ttk.Frame
+        button_frame = tk.Frame(self.main_frame, bg='#F0F0F0')
+        button_frame.grid(row=1, column=0, columnspan=4, pady=10)
+
+        # CRUD Buttons with consistent styling
+        buttons = [
+            ("Add Warehouse", self.show_add_dialog),
+            ("Edit Warehouse", self.show_edit_dialog),
+            ("Delete Warehouse", self.delete_warehouse),
+            ("Refresh", self.refresh_warehouse_list),
+            ("Expand", self.show_expand_dialog)
+        ]
+
+        for i, (text, command) in enumerate(buttons):
+            btn = RoundedButton(
+                button_frame,
+                text=text,
+                command=command,
+                width=button_width,
+                height=button_height,
+                corner_radius=button_radius,
+                color='#6666FF',
+                hover_color='#7777FF',
+                font=button_font
+            )
+            btn.grid(row=0, column=i, padx=5, pady=5)
+
+    def show_expand_dialog(self):
+        """
+        Menampilkan semua data warehouse yang dipilih dalam jendela pop-up
+        """
+        selected = self.warehouse_tree.selection()
+        if not selected:
+            messagebox.showwarning(
+                "Selection Required", "Please select a warehouse to expand")
+            return
+
+        item = self.warehouse_tree.item(selected[0])
+        values = item['values']
+
+        expand_dialog = tk.Toplevel(self.root)
+        expand_dialog.title("Warehouse Details")
+        expand_dialog.geometry("400x300")
+
+        ttk.Label(expand_dialog, text="ID:").grid(row=0, column=0, pady=5, padx=5, sticky=tk.W)
+        ttk.Label(expand_dialog, text=values[0]).grid(row=0, column=1, pady=5, padx=5, sticky=tk.W)
+
+        ttk.Label(expand_dialog, text="Name:").grid(row=1, column=0, pady=5, padx=5, sticky=tk.W)
+        ttk.Label(expand_dialog, text=values[1]).grid(row=1, column=1, pady=5, padx=5, sticky=tk.W)
+
+        ttk.Label(expand_dialog, text="Description:").grid(row=2, column=0, pady=5, padx=5, sticky=tk.W)
+        desc_text = tk.Text(expand_dialog, wrap=tk.WORD, height=5, width=40)
+        desc_text.insert(tk.END, values[2])
+        desc_text.config(state=tk.DISABLED)
+        desc_text.grid(row=2, column=1, pady=5, padx=5, sticky=tk.W)
+
+        desc_scrollbar = ttk.Scrollbar(expand_dialog, orient=tk.VERTICAL, command=desc_text.yview)
+        desc_text.config(yscrollcommand=desc_scrollbar.set)
+        desc_scrollbar.grid(row=2, column=2, pady=5, padx=5, sticky=(tk.N, tk.S))
+
+        ttk.Label(expand_dialog, text="Capacity:").grid(row=3, column=0, pady=5, padx=5, sticky=tk.W)
+        ttk.Label(expand_dialog, text=values[3]).grid(row=3, column=1, pady=5, padx=5, sticky=tk.W)
+
+        ttk.Label(expand_dialog, text="Used Capacity:").grid(row=4, column=0, pady=5, padx=5, sticky=tk.W)
+        ttk.Label(expand_dialog, text=values[4]).grid(row=4, column=1, pady=5, padx=5, sticky=tk.W)
+
+        ttk.Button(expand_dialog, text="Close", command=expand_dialog.destroy).grid(row=5, column=0, columnspan=2, pady=10)
 
     def refresh_warehouse_list(self):
         """
@@ -89,13 +157,15 @@ class WarehouseGUI:
         # Connect to database and fetch warehouses
         conn = sqlite3.connect(warehouse.DATABASE_PATH)
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM Warehouse")
+        cursor.execute("SELECT id, name, description, capacity, used_capacity FROM Warehouse")
         warehouses = cursor.fetchall()
         conn.close()
 
-        # Insert warehouse data
+        # Insert warehouse data with percentage used capacity
         for w in warehouses:
-            self.warehouse_tree.insert("", tk.END, values=w)
+            ware_id, name, description, capacity, used_capacity = w
+            used_percentage = (used_capacity / capacity) * 100 if capacity > 0 else 0
+            self.warehouse_tree.insert("", tk.END, values=(ware_id, name, description, capacity, f"{used_capacity} ({used_percentage:.2f}%)"))
 
     def show_add_dialog(self):
         """
@@ -215,6 +285,81 @@ class WarehouseDialog:
 
         self.result = (name, desc, capacity)
         self.dialog.destroy()
+
+
+class RoundedButton(tk.Canvas):
+    """
+    Custom button widget with rounded corners
+    """
+    def __init__(self, parent, text, command, width=150, height=40,
+                 corner_radius=10, padding=0, color="#6666FF",
+                 text_color="white",
+                 hover_color="#7777FF", font=None):
+        super().__init__(parent, width=width, height=height,
+                         highlightthickness=0, bg=parent.cget("bg"))
+
+        self.command = command
+        self.color = color
+        self.hover_color = hover_color
+
+        # Create rounded rectangle
+        self.rect = self.round_rectangle(padding, padding,
+                                         width-padding*2, height-padding*2,
+                                         corner_radius, fill=color, outline="")
+
+        # Add text
+        self.text = self.create_text(width/2, height/2, text=text,
+                                     fill=text_color, font=font)
+
+        # Bind events
+        self.bind("<Enter>", self.on_enter)
+        self.bind("<Leave>", self.on_leave)
+        self.bind("<Button-1>", self.on_click)
+
+    def round_rectangle(self, x1, y1, x2, y2, radius, **kwargs):
+        """
+        Create a rounded rectangle
+        """
+        points = [x1+radius, y1,
+                  x1+radius, y1,
+                  x2-radius, y1,
+                  x2-radius, y1,
+                  x2, y1,
+                  x2, y1+radius,
+                  x2, y1+radius,
+                  x2, y2-radius,
+                  x2, y2-radius,
+                  x2, y2,
+                  x2-radius, y2,
+                  x2-radius, y2,
+                  x1+radius, y2,
+                  x1+radius, y2,
+                  x1, y2,
+                  x1, y2-radius,
+                  x1, y2-radius,
+                  x1, y1+radius,
+                  x1, y1+radius,
+                  x1, y1]
+        return self.create_polygon(points, smooth=True, **kwargs)
+
+    def on_enter(self, e):
+        """
+        Change color on mouse enter
+        """
+        self.itemconfig(self.rect, fill=self.hover_color)
+
+    def on_leave(self, e):
+        """
+        Change color back on mouse leave
+        """
+        self.itemconfig(self.rect, fill=self.color)
+
+    def on_click(self, e):
+        """
+        Execute command on button click
+        """
+        if self.command:
+            self.command()
 
 
 def main():
