@@ -183,6 +183,7 @@ def add_item(name, description, volume):
     try:
         # kasus nama item tidak boleh sama, jika sama maka ada info
         c.execute("SELECT id FROM items WHERE name = ?", (name,))
+        conn.commit()
         if c.fetchone():
             print(f"Item with name '{name}' already exists.")
             return
