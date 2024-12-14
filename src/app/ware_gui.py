@@ -243,11 +243,17 @@ class WarehouseGUI:
         values = item['values']
 
         dialog = WarehouseDialog(self.root, "Edit Warehouse",
-                                 values[1], values[2], values[3])
+                                values[1], values[2], values[3])
         if dialog.result:
             name, desc, capacity = dialog.result
-            warehouse.edit_warehouse(values[0], name, desc, float(capacity))
-            self.refresh_warehouse_list()
+            success, message = warehouse.edit_warehouse(values[0], name, desc, float(capacity))
+            
+            # Show message based on success or failure
+            if success:
+                messagebox.showinfo("Success", message)
+                self.refresh_warehouse_list()
+            else:
+                messagebox.showerror("Edit Warehouse", message)
 
     def delete_warehouse(self):
         """
