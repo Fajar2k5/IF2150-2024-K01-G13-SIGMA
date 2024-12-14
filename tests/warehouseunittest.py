@@ -7,6 +7,8 @@ db_connection = sqlite3.connect(':memory:')
 def setup_database():
     """Setup database schema."""
     c = db_connection.cursor()
+    # Menghapus tabel 'items' jika ada 
+    c.execute("DROP TABLE IF EXISTS Warehouse")
     c.execute("""CREATE TABLE IF NOT EXISTS Warehouse (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
