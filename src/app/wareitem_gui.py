@@ -107,9 +107,10 @@ class WarehouseItemGUI:
         # CRUD Buttons with consistent styling
         buttons = [
             ("Add Item", self.show_add_dialog),
-            ("Edit Item", self.show_edit_dialog),
+            ("Edit Qty", self.show_edit_dialog),
             ("Delete Item", self.delete_item),
-            ("Refresh", self.refresh_warehouseitem_list)
+            ("Refresh", self.refresh_warehouseitem_list),
+            ("Move Item", self.show_move_dialog)  # Added Move Item button
         ]
 
         for i, (text, command) in enumerate(buttons):
@@ -125,6 +126,24 @@ class WarehouseItemGUI:
                 font=button_font
             )
             btn.grid(row=0, column=i, padx=5, pady=5)
+
+    def show_move_dialog(self):
+        """
+        Show dialog to move warehouse item
+        """
+        selected = self.warehouseitem_tree.selection()
+        if not selected:
+            messagebox.showwarning("Selection Required", "Please select a warehouse item to move")
+            return
+
+        items = self.warehouseitem_tree.item(selected[0])
+        values = items['values']
+
+        dialog = MoveItemDialog(self.root, "Move Warehouse Item", (values[1][-2]), values[2][-2], values[3])
+        if dialog.result:
+            source_warehouse_id, target_warehouse_id, item_id, quantity = dialog.result
+            warehouseitem.transfer_items(int(source_warehouse_id), int(target_warehouse_id), int(item_id), int(quantity))
+            self.refresh_warehouseitem_list()
 
     def show_add_dialog(self):
         """
@@ -148,10 +167,10 @@ class WarehouseItemGUI:
         items = self.warehouseitem_tree.item(selected[0])
         values = items['values']
 
-        dialog = WarehouseItemDialog(self.root, "Edit Warehouse Item", values[1], values[2], values[3])
+        dialog = WarehouseItemDialog(self.root, "Edit Warehouse Item", values[1][-2], values[2][-2], values[3])
         if dialog.result:
             warehouse_id, item_id, quantity = dialog.result
-            warehouseitem.update_item_quantity(int(values[1]), int(values[2]), int(quantity))
+            warehouseitem.update_item_quantity(warehouse_id, item_id, quantity)
             self.refresh_warehouseitem_list()
 
     def delete_item(self):
@@ -165,11 +184,82 @@ class WarehouseItemGUI:
 
         if messagebox.askyesno("Confirm Delete", "Are you sure you want to delete this warehouse item?"):
             items = self.warehouseitem_tree.item(selected[0])
-            warehouse_id, item_id = items['values'][1], items['values'][2]
+            warehouse_id, item_id = items['values'][1][-2], items['values'][2][-2]
             warehouseitem.remove_item_from_warehouse(int(warehouse_id), int(item_id))
             self.refresh_warehouseitem_list()
 
 
+
+class MoveItemDialog:
+    """
+    Dialog to move warehouse item
+    """
+    def __init__(self, parent, title, warehouse_id="", item_id="", quantity=""):
+        self.result = None
+
+        # Create dialog window
+        self.dialog = tk.Toplevel(parent)
+        self.dialog.title(title)
+        self.dialog.geometry("400x300")
+        self.dialog.transient(parent)
+        self.dialog.grab_set()
+
+        # Form fields
+        ttk.Label(self.dialog, text="Source Warehouse ID:").grid(row=0, column=0, pady=5, padx=5)
+        self.source_warehouse_id_label = ttk.Label(self.dialog, text=warehouse_id, anchor="w")
+        self.source_warehouse_id_label.grid(row=0, column=1, pady=5, padx=5, sticky="w")
+
+        ttk.Label(self.dialog, text="Target Warehouse ID:").grid(row=1, column=0, pady=5, padx=5)
+        self.target_warehouse_id_entry = ttk.Entry(self.dialog, width=40)
+        self.target_warehouse_id_entry.grid(row=1, column=1, pady=5, padx=5)
+
+        ttk.Label(self.dialog, text="Item ID:").grid(row=2, column=0, pady=5, padx=5)
+        self.item_id_label = ttk.Label(self.dialog, text=item_id, anchor="w")
+        self.item_id_label.grid(row=2, column=1, pady=5, padx=5, sticky="w")
+
+        ttk.Label(self.dialog, text="Quantity:").grid(row=3, column=0, pady=5, padx=5)
+        self.quantity_entry = ttk.Entry(self.dialog, width=40)
+        self.quantity_entry.insert(0, quantity)
+        self.quantity_entry.grid(row=3, column=1, pady=5, padx=5)
+
+        # Buttons
+        btn_frame = ttk.Frame(self.dialog)
+        btn_frame.grid(row=4, column=0, columnspan=2, pady=20)
+
+        ttk.Button(btn_frame, text="Move", command=self.move).grid(row=0, column=0, padx=5)
+        ttk.Button(btn_frame, text="Cancel", command=self.dialog.destroy).grid(row=0, column=1, padx=5)
+
+        # Center the dialog
+        self.dialog.wait_window()
+
+    def move(self):
+        """
+        Validate and move warehouse item data
+        """
+        source_warehouse_id = self.source_warehouse_id_label.cget("text").strip()
+        target_warehouse_id = self.target_warehouse_id_entry.get().strip()
+        item_id = self.item_id_label.cget("text").strip()
+        quantity = self.quantity_entry.get().strip()
+
+        if not all([source_warehouse_id, target_warehouse_id, item_id, quantity]):
+            messagebox.showwarning("Validation Error", "All fields are required")
+            return
+
+        try:
+            source_warehouse_id = int(source_warehouse_id)
+            target_warehouse_id = int(target_warehouse_id)
+            item_id = int(item_id)
+            quantity = int(quantity)
+            if quantity <= 0:
+                raise ValueError
+        except ValueError:
+            messagebox.showwarning("Validation Error", "Quantity must be a positive integer")
+            return
+
+        self.result = (source_warehouse_id, target_warehouse_id, item_id, quantity)
+        self.dialog.destroy()
+        
+    
 class WarehouseItemDialog:
     """
     Dialog to add or edit warehouse item
@@ -186,14 +276,10 @@ class WarehouseItemDialog:
 
         # Form fields
         ttk.Label(self.dialog, text="Warehouse ID:").grid(row=0, column=0, pady=5, padx=5)
-        self.warehouse_id_entry = ttk.Entry(self.dialog, width=40)
-        self.warehouse_id_entry.insert(0, warehouse_id)
-        self.warehouse_id_entry.grid(row=0, column=1, pady=5, padx=5)
+        ttk.Label(self.dialog, text=warehouse_id, anchor="w").grid(row=0, column=1, pady=5, padx=5, sticky="w")
 
         ttk.Label(self.dialog, text="Item ID:").grid(row=1, column=0, pady=5, padx=5)
-        self.item_id_entry = ttk.Entry(self.dialog, width=40)
-        self.item_id_entry.insert(0, item_id)
-        self.item_id_entry.grid(row=1, column=1, pady=5, padx=5)
+        ttk.Label(self.dialog, text=item_id, anchor="w").grid(row=1, column=1, pady=5, padx=5, sticky="w")
 
         ttk.Label(self.dialog, text="Quantity:").grid(row=2, column=0, pady=5, padx=5)
         self.quantity_entry = ttk.Entry(self.dialog, width=40)

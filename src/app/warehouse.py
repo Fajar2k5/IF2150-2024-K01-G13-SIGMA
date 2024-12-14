@@ -96,6 +96,7 @@ def add_warehouse(name: str, description: str, capacity: float):
     try:
         # Check if the warehouse name already exists
         cursor.execute("SELECT id FROM Warehouse WHERE name = ?", (name,))
+        conn.commit()
         if cursor.fetchone():
             print(f"A warehouse with the name '{name}' already exists.")
             return
