@@ -14,6 +14,7 @@ Shield’s Inventory Goods Management Assistance (SIGMA) adalah sebuah perangkat
    ```
 2. **Buat Virtual Environment**
    ```bash
+   # Pastikan menggunakan versi python sebelum 3.13
    python -m venv venv
    source venv/bin/activate  # macOS/Linux
    .\venv\Scripts\activate   # Windows
