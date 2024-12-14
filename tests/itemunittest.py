@@ -7,6 +7,8 @@ db_connection = sqlite3.connect(':memory:')
 def setup_database():
     """Setup database schema."""
     c = db_connection.cursor()
+    # Menghapus tabel 'items' jika ada 
+    c.execute("DROP TABLE IF EXISTS items")
     c.execute("""CREATE TABLE IF NOT EXISTS items (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
@@ -86,12 +88,24 @@ class TestItemOperations(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         setup_database()
-        c = db_connection.cursor()
-        c.executemany("INSERT INTO items (name, description, volume) VALUES (?, ?, ?)", [
-            ("Item1", "Description1", 10),
-            ("Item2", "Description2", 20)
-        ])
-        db_connection.commit()
+        add_item("Item1", "Description1", 10)
+        add_item("Item2", "Description2", 20)
+        
+    def test_update_with_existing_name(self):
+        add_item("Item1", "Description1", 10)
+        success, message = update_item(2, name="Item1")
+        self.assertFalse(success)
+        self.assertEqual(message, "Item with the name 'Item1' already exists.")
+        
+    def test_update_with_invalid_volume(self):
+        success, message = update_item(2, volume=-10)
+        self.assertFalse(success)
+        self.assertEqual(message, "Volume must be a positive number.")
+
+    def test_update_with_no_changes(self):
+        success, message = update_item(2)
+        self.assertFalse(success)
+        self.assertEqual(message, "No fields to update.")
 
     def test_delete_existing_item(self):
         success, message = delete_item(1)
@@ -113,20 +127,6 @@ class TestItemOperations(unittest.TestCase):
         self.assertFalse(success)
         self.assertEqual(message, "Item with id '999' does not exist.")
 
-    # def test_update_with_existing_name(self):
-    #     success, message = update_item(2, name="Item1")
-    #     self.assertFalse(success)
-    #     self.assertEqual(message, "Item with the name 'Item1' already exists.")
-
-    def test_update_with_invalid_volume(self):
-        success, message = update_item(2, volume=-10)
-        self.assertFalse(success)
-        self.assertEqual(message, "Volume must be a positive number.")
-
-    def test_update_with_no_changes(self):
-        success, message = update_item(2)
-        self.assertFalse(success)
-        self.assertEqual(message, "No fields to update.")
 
     def test_add_item_success(self):
         success, message = add_item("NewItem", "New Description", 15)
