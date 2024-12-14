@@ -13,14 +13,7 @@ class WarehouseGUI:
     Main GUI untuk warehouse management
     """
     def __init__(self, root=None):
-        if root is None:
-            self.root = Tk()
-        else:
-            self.root = root
-
-        self.main_frame = ttk.Frame(self.root, padding="10")
-        self.main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
-
+        self.root = root
 
         # Set default font for all widgets
         default_font = ('Microsoft YaHei UI Light', 10)
@@ -431,5 +424,4 @@ def main():
 
 
 if __name__ == "__main__":
-    gui = WarehouseGUI()
-    gui.root.mainloop()
+    main()

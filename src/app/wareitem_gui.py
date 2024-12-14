@@ -16,10 +16,6 @@ class WarehouseItemGUI:
     def __init__(self, root):
         self.root = root
 
-        self.main_frame = ttk.Frame(self.root, padding="10")
-        self.main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
-
-
         # Set default font for all widgets
         default_font = ('Microsoft YaHei UI Light', 10)
         self.root.option_add('*Font', default_font)
