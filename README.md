@@ -78,3 +78,6 @@ Shield’s Inventory Goods Management Assistance (SIGMA) adalah sebuah perangkat
 | username        | TEXT       | Nama user               |
 | email           | TEXT       | Email user              |
 | password        | TEXT       | Password                |
+
+### Form Asistensi
+https://docs.google.com/document/d/1sTNqV8rE4ZqNlxf8NOiW9SygYPSsAeaQ/edit?usp=sharing&ouid=101002249096292908015&rtpof=true&sd=true
