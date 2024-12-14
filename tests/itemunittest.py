@@ -92,6 +92,7 @@ class TestItemOperations(unittest.TestCase):
         add_item("Item2", "Description2", 20)
         
     def test_update_with_existing_name(self):
+        add_item("Item1", "Description1", 10)
         success, message = update_item(2, name="Item1")
         self.assertFalse(success)
         self.assertEqual(message, "Item with the name 'Item1' already exists.")
