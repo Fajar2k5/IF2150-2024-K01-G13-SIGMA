@@ -31,17 +31,17 @@ Shield’s Inventory Goods Management Assistance (SIGMA) adalah sebuah perangkat
    ```
 
 ### Daftar Modul
-1. **Manajemen Akun**
+1. **Manajemen Akun** (13521117, 13523017)
    - Registrasi 
    - Login
    - Edit akun
 
-2. **Manajemen Warehouse**
+2. **Manajemen Warehouse** (13521073, 13523027)
    - Tambah, ubah, dan hapus data warehouse
    - Menampilkan daftar warehouse
    - Pindahkan barang antar warehouse
 
-3. **Manajemen Item**
+3. **Manajemen Item** (13521167, 13523025)
    - Tambah, ubah, dan hapus data item
    - Menampilkan daftar item
 
