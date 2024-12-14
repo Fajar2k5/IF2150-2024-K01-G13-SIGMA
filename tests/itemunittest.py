@@ -113,11 +113,11 @@ class TestItemOperations(unittest.TestCase):
         self.assertFalse(success)
         self.assertEqual(message, "Item with id '999' does not exist.")
 
-    # def test_update_with_existing_name(self):
-    #     success, message = update_item(2, name="Item1")
-    #     self.assertFalse(success)
-    #     self.assertEqual(message, "Item with the name 'Item1' already exists.")
-
+    def test_update_with_existing_name(self):
+        success, message = update_item(2, name="Item1")
+        self.assertFalse(success)
+        self.assertEqual(message, "Item with the name 'Item1' already exists.")
+        
     def test_update_with_invalid_volume(self):
         success, message = update_item(2, volume=-10)
         self.assertFalse(success)
