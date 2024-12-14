@@ -1,7 +1,7 @@
 """
 item.py
 
-This module provides functionalities for managing warehouse operations.
+This module provides functionalities for managing item operations.
 """
 
 import sqlite3
@@ -210,10 +210,16 @@ def update_item(item_id, name=None, description=None, volume=None):
     try:
         # checking kalau ada item
         c.execute("SELECT * FROM items WHERE id = ?", (item_id,))
-        if not c.fetchone():
-            print(f"Item with id '{item_id}' does not exist.")
-            return
+        existing_item = c.fetchone()
+        if not existing_item:
+            return False, f"Item with id '{item_id}' does not exist."
 
+        # Check kalau item dengan nama serupa sudah ada
+        if name:
+            c.execute("SELECT id FROM items WHERE name = ? AND id != ?", (name, item_id))
+            if c.fetchone():
+                return False, f"Item with the name '{name}' already exists."
+            
         # update query
         updates = []
         params = []
@@ -232,17 +238,16 @@ def update_item(item_id, name=None, description=None, volume=None):
             params.append(volume)
 
         if not updates:
-            print("No fields to update.")
-            return
+            return False, "No fields to update."
 
         query = f"UPDATE items SET {', '.join(updates)} WHERE id = ?"
         params.append(item_id)
 
         c.execute(query, tuple(params))
         conn.commit()
-        print(f"Item with ID '{item_id}' updated successfully.")
+        return True, f"Item with ID '{item_id}' updated successfully."
     except sqlite3.Error as e:
-        print(f"Error updating item: {e}")
+        return False, f"Error updating item: {e}"
     finally:
         conn.close()
 

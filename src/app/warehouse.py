@@ -118,18 +118,25 @@ def edit_warehouse(warehouse_id: int, name: str = None,
                    description: str = None, capacity: float = None):
     """
     Fungsi ini digunakan untuk mengedit data Warehouse yang sudah ada
+    dengan pengecekan nama yang sudah ada
     """
     conn = sqlite3.connect(DATABASE_PATH)
     cursor = conn.cursor()
 
     try:
-        # Check if the warehouse exists
+        # Check kalau warehouse ada
         cursor.execute("SELECT * FROM Warehouse WHERE id = ?", (warehouse_id,))
-        if not cursor.fetchone():
-            print(f"Warehouse with ID {warehouse_id} does not exist.")
-            return
+        existing_warehouse = cursor.fetchone()
+        if not existing_warehouse:
+            return False, f"Warehouse with ID {warehouse_id} does not exist."
 
-        # Build the UPDATE query dynamically
+        # Check kalau warehouse dengan nama serupa sudah ada
+        if name:
+            cursor.execute("SELECT id FROM Warehouse WHERE name = ? AND id != ?", (name, warehouse_id))
+            if cursor.fetchone():
+                return False, f"A warehouse with the name '{name}' already exists."
+
+        # update query
         updates = []
         params = []
 
@@ -141,14 +148,12 @@ def edit_warehouse(warehouse_id: int, name: str = None,
             params.append(description)
         if capacity:
             if capacity <= 0:
-                print("Capacity must be a positive number.")
-                return
+                return False, "Capacity must be a positive number."
             updates.append("capacity = ?")
             params.append(capacity)
 
         if not updates:
-            print("No fields to update.")
-            return
+            return False, "No fields to update."
 
         query = f"UPDATE Warehouse SET {', '.join(updates)} WHERE id = ?"
         params.append(warehouse_id)
@@ -156,9 +161,9 @@ def edit_warehouse(warehouse_id: int, name: str = None,
         # Execute the query
         cursor.execute(query, tuple(params))
         conn.commit()
-        print(f"Warehouse with ID {warehouse_id} updated successfully.")
+        return True, f"Warehouse with ID {warehouse_id} updated successfully."
     except sqlite3.Error as e:
-        print(f"Error updating warehouse: {e}")
+        return False, f"Error updating warehouse: {e}"
     finally:
         conn.close()
 
