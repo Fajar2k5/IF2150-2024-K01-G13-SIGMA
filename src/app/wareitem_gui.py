@@ -149,8 +149,14 @@ class WarehouseItemGUI:
         dialog = WarehouseItemDialog(self.root, "Add Warehouse Item", is_edit=False)
         if dialog.result:
             warehouse_id, item_id, quantity = dialog.result
-            warehouseitem.add_item_to_warehouse(warehouse_id, item_id, quantity)
-            self.refresh_warehouseitem_list()
+            try:
+                warehouseitem.add_item_to_warehouse(warehouse_id, item_id, quantity)
+                self.refresh_warehouseitem_list()
+            except ValueError as e:
+                if str(e) == "Warehouse capacity exceeded":
+                    messagebox.showwarning("Capacity Error", "Warehouse capacity exceeded")
+                else:
+                    raise
 
     def show_edit_dialog(self):
         selected = self.warehouseitem_tree.selection()
@@ -164,8 +170,14 @@ class WarehouseItemGUI:
         dialog = WarehouseItemDialog(self.root, "Edit Warehouse Item", values[1][-2], values[2][-2], values[3], is_edit=True)
         if dialog.result:
             warehouse_id, item_id, quantity = dialog.result
-            warehouseitem.update_item_quantity(warehouse_id, item_id, quantity)
-            self.refresh_warehouseitem_list()
+            try:
+                warehouseitem.update_item_quantity(warehouse_id, item_id, quantity)
+                self.refresh_warehouseitem_list()
+            except ValueError as e:
+                if str(e) == "Warehouse capacity exceeded":
+                    messagebox.showwarning("Capacity Error", "Warehouse capacity exceeded")
+                else:
+                    raise
 
     def delete_item(self):
         """

@@ -110,7 +110,7 @@ def add_item_to_warehouse(warehouse_id, item_id, quantity):
         warehouse_id, quantity * item_volume)
     if not success:
         print(error)
-        return
+        raise ValueError("Warehouse capacity exceeded")
 
     # Add the item to warehouseitem
     conn = sqlite3.connect(DATABASE_PATH)
@@ -174,7 +174,7 @@ def update_item_quantity(warehouse_id, item_id, new_quantity):
     if not success:
         print(error)
         conn.close()
-        return
+        raise ValueError("Warehouse capacity exceeded")
 
     # Update item quantity
     cursor.execute("""UPDATE warehouseitem
