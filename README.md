@@ -10,7 +10,7 @@ Shield’s Inventory Goods Management Assistance (SIGMA) adalah sebuah perangkat
 1. **Kloning Repository**
    ```bash
    git clone https://github.com/Fajar2k5/IF2150-2024-K01-G13-SIGMA.git
-   cd IF2150-2024-K01-G13-SIGMA-main
+   cd IF2150-2024-K01-G13-SIGMA
    ```
 2. **Buat Virtual Environment**
    ```bash
