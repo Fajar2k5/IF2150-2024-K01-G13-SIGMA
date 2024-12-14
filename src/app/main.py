@@ -845,7 +845,7 @@ def warehouse_item_page():
     item_label = Button(menuBar_Frame, text="Item", font=('Microsoft Yahei UI Light Bold', 14), bg='#6666ff', fg='white', bd=0, command= lambda: switch_indicator(item_indicator, item_page),width=10)
     item_label.place(x=50, y=330)
     warehouseitemimg = PhotoImage(file=os.path.join(IMG_PATH, "warehouseitem.png"))
-    warehouseitem = Button(menuBar_Frame, image=warehouseitemimg, bd=0, bg='#6666ff', command= lambda: switch_indicator(warehouseitem_indicator, warehouse_page))
+    warehouseitem = Button(menuBar_Frame, image=warehouseitemimg, bd=0, bg='#6666ff', command= lambda: switch_indicator(warehouseitem_indicator, warehouse_item_page))
     warehouseitem.image = warehouseitemimg
     warehouseitem.place(x=5, y=400)
     warehouseitem_indicator = Label(menuBar_Frame, bg='white')
