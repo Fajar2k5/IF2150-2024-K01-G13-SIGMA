@@ -13,8 +13,6 @@ class ItemGUI:
     """
     def __init__(self, root):
         self.root = root
-        self.root.title("Item Management")
-        self.root.geometry("800x600")
 
         # Set default font for all widgets
         default_font = ('Microsoft YaHei UI Light', 10)
@@ -129,7 +127,7 @@ class ItemGUI:
         ttk.Label(expand_dialog, text=values[1], anchor=tk.W).grid(row=1, column=1, pady=5, padx=5, sticky=tk.W)
 
         ttk.Label(expand_dialog, text="Description:").grid(row=2, column=0, pady=5, padx=5)
-        
+
         # Scrollable description
         desc_frame = ttk.Frame(expand_dialog)
         desc_frame.grid(row=2, column=1, pady=5, padx=5)

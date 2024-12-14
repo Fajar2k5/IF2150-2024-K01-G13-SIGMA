@@ -3,6 +3,7 @@ GUIT FOR WAREHOUSE MANAGEMENT
 """
 import sqlite3
 import tkinter as tk
+from tkinter import Tk, Frame
 from tkinter import ttk, messagebox
 import warehouse
 
@@ -11,10 +12,15 @@ class WarehouseGUI:
     """
     Main GUI untuk warehouse management
     """
-    def __init__(self, root):
-        self.root = root
-        self.root.title("Warehouse Management")
-        self.root.geometry("800x600")
+    def __init__(self, root=None):
+        if root is None:
+            self.root = Tk()
+        else:
+            self.root = root
+
+        self.main_frame = ttk.Frame(self.root, padding="10")
+        self.main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+
 
         # Set default font for all widgets
         default_font = ('Microsoft YaHei UI Light', 10)
@@ -88,7 +94,8 @@ class WarehouseGUI:
             ("Edit Warehouse", self.show_edit_dialog),
             ("Delete Warehouse", self.delete_warehouse),
             ("Refresh", self.refresh_warehouse_list),
-            ("Expand", self.show_expand_dialog)
+            ("Expand", self.show_expand_dialog),
+            ("Show Items", self.show_items_dialog)
         ]
 
         for i, (text, command) in enumerate(buttons):
@@ -104,6 +111,58 @@ class WarehouseGUI:
                 font=button_font
             )
             btn.grid(row=0, column=i, padx=5, pady=5)
+
+    def show_items_dialog(self):
+        """
+        Menampilkan semua item dalam warehouse yang dipilih dalam jendela pop-up
+        """
+        selected = self.warehouse_tree.selection()
+        if not selected:
+            messagebox.showwarning(
+                "Selection Required", "Please select a warehouse to show items")
+            return
+
+        item = self.warehouse_tree.item(selected[0])
+        warehouse_id = item['values'][0]
+
+        items_dialog = tk.Toplevel(self.root)
+        items_dialog.title("Warehouse Items")
+        items_dialog.geometry("600x400")
+
+        items_tree = ttk.Treeview(items_dialog, columns=(
+            "Item ID", "Item Name", "Quantity"), show="headings")
+        items_tree.heading("Item ID", text="Item ID")
+        items_tree.heading("Item Name", text="Item Name")
+        items_tree.heading("Quantity", text="Quantity")
+
+        items_tree.column("Item ID", width=100)
+        items_tree.column("Item Name", width=300)
+        items_tree.column("Quantity", width=100)
+
+        scrollbar = ttk.Scrollbar(items_dialog, orient=tk.VERTICAL,
+                                command=items_tree.yview)
+        items_tree.configure(yscrollcommand=scrollbar.set)
+
+        items_tree.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+        scrollbar.grid(row=0, column=1, sticky=(tk.N, tk.S))
+
+        # Fetch items from database
+        conn = sqlite3.connect(warehouse.DATABASE_PATH)
+        cursor = conn.cursor()
+        cursor.execute("SELECT item_id, quantity FROM warehouseitem WHERE warehouse_id=?", (warehouse_id,))
+        cursor.execute("""
+            SELECT wi.item_id, i.name, wi.quantity 
+            FROM warehouseitem wi 
+            JOIN items i ON wi.item_id = i.id 
+            WHERE wi.warehouse_id=?
+        """, (warehouse_id,))
+        items = cursor.fetchall()
+        conn.close()
+
+        for item in items:
+            items_tree.insert("", tk.END, values=item)
+
+        ttk.Button(items_dialog, text="Close", command=items_dialog.destroy).grid(row=1, column=0, columnspan=2, pady=10)
 
     def show_expand_dialog(self):
         """
@@ -372,4 +431,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    gui = WarehouseGUI()
+    gui.root.mainloop()

@@ -32,9 +32,9 @@ def initialize_item_table():
 
     c.execute("""CREATE TABLE IF NOT EXISTS items (
                 id integer primary key autoincrement,
-                name text,
+                name text not null,
                 description text,
-                volume integer
+                volume integer not null
                 )""")
 
     conn.commit()

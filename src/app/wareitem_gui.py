@@ -15,8 +15,10 @@ class WarehouseItemGUI:
     """
     def __init__(self, root):
         self.root = root
-        self.root.title("Warehouse Item Management")
-        self.root.geometry("800x600")
+
+        self.main_frame = ttk.Frame(self.root, padding="10")
+        self.main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+
 
         # Set default font for all widgets
         default_font = ('Microsoft YaHei UI Light', 10)
@@ -30,6 +32,7 @@ class WarehouseItemGUI:
         # Create main frame
         self.main_frame = ttk.Frame(self.root, padding="10")
         self.main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+
 
         # Create and setup widgets
         self.setup_warehouseitem_list()
@@ -78,7 +81,7 @@ class WarehouseItemGUI:
         conn = sqlite3.connect(warehouseitem.DATABASE_PATH)
         cursor = conn.cursor()
         cursor.execute("""
-            SELECT wi.id, w.name || ' (' || wi.warehouse_id || ')', 
+            SELECT wi.id, w.name || ' (' || wi.warehouse_id || ')',
                    i.name || ' (' || wi.item_id || ')', wi.quantity,
                    (wi.quantity * i.volume * 100.0 / w.capacity) AS occupied
             FROM warehouseitem wi

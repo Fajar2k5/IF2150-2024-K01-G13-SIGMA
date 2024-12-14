@@ -2,22 +2,39 @@ from tkinter import *
 from tkinter import messagebox
 import os
 import sqlite3
+from ware_gui import WarehouseGUI
+from item_gui import ItemGUI
+
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATABASE_DIR = os.path.join(BASE_DIR, "database")
-DATABASE_PATH = os.path.join(DATABASE_DIR, "accounts_database.db")
+DATABASE_PATH = os.path.join(DATABASE_DIR, "database.db")
+IMG_PATH = os.path.join(os.path.dirname(BASE_DIR), "img")
+
+
+root = Tk()
+root.title("SIGMA")
+root.geometry("900x600")
+root.config(bg="white")
+root.resizable(False, False)
+
+
 def create_database():
-    if not os.path.exists(DATABASE_PATH):
-        connection = sqlite3.connect(DATABASE_PATH)
-        cursor = connection.cursor()
-        cursor.execute("""
-        CREATE TABLE accounts(
-                       username text,
-                       email text,
-                       password text
-                       )
-                       """)
-        connection.commit()
-        connection.close()
+    os.makedirs(DATABASE_DIR, exist_ok=True)
+
+    # Connect to SQLite database (or create one if it doesn't exist)
+    conn = sqlite3.connect(DATABASE_PATH)
+    cursor = conn.cursor()
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS accounts(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username text not null,
+        email text not null,
+        password text not null
+        )
+        """)
+    conn.commit()
+    conn.close()
 
 
 def on_focus_in(event, placeholder_text):
@@ -160,9 +177,9 @@ def sign_in_page():
     login_frame.pack(pady=10)
     login_frame.pack_propagate(False)
     login_frame.configure(width=900, height=900, bg="white")
-    show_icon = PhotoImage(file="../../img/show.png")
-    hide_icon = PhotoImage(file="../../img/hide.png")
-    img = PhotoImage(file="../../img/login.png")
+    show_icon = PhotoImage(file=os.path.join(IMG_PATH, "show.png"))
+    hide_icon = PhotoImage(file=os.path.join(IMG_PATH, "hide.png"))
+    img = PhotoImage(file=os.path.join(IMG_PATH, "login.png"))
     label = Label(login_frame, image=img, bg="white")
     label.image = img
     label.place(x=25, y=50)
@@ -245,9 +262,9 @@ def sign_up_page():
     register_frame.pack()
     register_frame.pack_propagate(False)
     register_frame.configure(width=900, height=900, bg="white")
-    show_icon = PhotoImage(file="../../img/show.png")
-    hide_icon = PhotoImage(file="../../img/hide.png")
-    img = PhotoImage(file="../../img/login.png")
+    show_icon = PhotoImage(file=os.path.join(IMG_PATH, "show.png"))
+    hide_icon = PhotoImage(file=os.path.join(IMG_PATH, "hide.png"))
+    img = PhotoImage(file=os.path.join(IMG_PATH, "login.png"))
     label = Label(register_frame, image=img, bg="white")
     label.image = img
     label.place(x=25, y=50)
@@ -321,12 +338,12 @@ def home_page():
     menuBar_Frame.pack(side=LEFT, fill=Y, padx=3, pady=4)
     menuBar_Frame.pack_propagate(False)
     menuBar_Frame.configure(width=45, bg='#6666ff')  
-    img = PhotoImage(file="../../img/toggle.png")
-    close = PhotoImage(file="../../img/close.png")
+    img = PhotoImage(file=os.path.join(IMG_PATH, "toggle.png"))
+    close = PhotoImage(file=os.path.join(IMG_PATH, "close.png"))
     toggle = Button(menuBar_Frame, image=img, bd=0, bg='#6666ff', command=pop_menu)
     toggle.image = img
     toggle.place(x=5, y=5)
-    homeimg = PhotoImage(file="../../img/home.png")
+    homeimg = PhotoImage(file=os.path.join(IMG_PATH, "home.png"))
     home = Button(menuBar_Frame, image=homeimg, bd=0, bg='#6666ff', command=lambda: switch_indicator(home_indicator, home_page))
     home.image = homeimg
     home.place(x=5, y=150)
@@ -334,7 +351,7 @@ def home_page():
     home_indicator.place(x=0, y=150, width=2, height=30)
     home_label = Button(menuBar_Frame, text="Home", font=('Microsoft Yahei UI Light Bold', 14), bg='#6666ff', fg='white',bd=0, command=lambda: switch_indicator(home_indicator, home_page),width=10)
     home_label.place(x=50, y=150)
-    akunimg = PhotoImage(file="../../img/user.png")
+    akunimg = PhotoImage(file=os.path.join(IMG_PATH, "user.png"))
     akun = Button(menuBar_Frame, image=akunimg, bd=0, bg='#6666ff', command= lambda: switch_indicator(akun_indicator, akun_page))
     akun.image = akunimg
     akun.place(x=5, y=220)
@@ -342,7 +359,7 @@ def home_page():
     akun_indicator.place(x=0, y=220, width=2, height=30)
     akun_label = Button(menuBar_Frame, text="Account", font=('Microsoft Yahei UI Light Bold', 14), bg='#6666ff', fg='white', bd=0, command= lambda: switch_indicator(akun_indicator, akun_page),width=10)
     akun_label.place(x=50, y=220)
-    warehouseimg = PhotoImage(file="../../img/warehouse.png")
+    warehouseimg = PhotoImage(file=os.path.join(IMG_PATH, "warehouse.png"))
     warehouse = Button(menuBar_Frame, image=warehouseimg, bd=0, bg='#6666ff', command= lambda: switch_indicator(warehouse_indicator, warehouse_page))
     warehouse.image = warehouseimg
     warehouse.place(x=5, y=290)
@@ -350,7 +367,7 @@ def home_page():
     warehouse_indicator.place(x=0, y=290, width=2, height=30)
     warehouse_label = Button(menuBar_Frame, text="Warehouse", font=('Microsoft Yahei UI Light Bold', 14), bg='#6666ff', fg='white', bd=0, command= lambda: switch_indicator(warehouse_indicator, warehouse_page),width=10)
     warehouse_label.place(x=50, y=290)
-    itemimg = PhotoImage(file="../../img/product.png")
+    itemimg = PhotoImage(file=os.path.join(IMG_PATH, "product.png"))
     item = Button(menuBar_Frame, image=itemimg, bd=0, bg='#6666ff', command= lambda: switch_indicator(item_indicator, item_page))
     item.image = itemimg
     item.place(x=5, y=360)
@@ -358,7 +375,7 @@ def home_page():
     item_indicator.place(x=0, y=360, width=2, height=30)
     item_label = Button(menuBar_Frame, text="Item", font=('Microsoft Yahei UI Light Bold', 14), bg='#6666ff', fg='white', bd=0, command= lambda: switch_indicator(item_indicator, item_page),width=10)
     item_label.place(x=50, y=360)
-    logoutimg = PhotoImage(file="../../img/logout.png")
+    logoutimg = PhotoImage(file=os.path.join(IMG_PATH, "logout.png"))
     logoutb = Button(menuBar_Frame, image=logoutimg, bd=0, bg='#6666ff', command=logout)
     logoutb.image = logoutimg
     logoutb.place(x=10, y=550)
@@ -531,12 +548,12 @@ def akun_page():
     menuBar_Frame.pack(side=LEFT, fill=Y, padx=3, pady=4)
     menuBar_Frame.pack_propagate(False)
     menuBar_Frame.configure(width=45, bg='#6666ff')  
-    img = PhotoImage(file="../../img/toggle.png")
-    close = PhotoImage(file="../../img/close.png")
+    img = PhotoImage(file=os.path.join(IMG_PATH, "toggle.png"))
+    close = PhotoImage(file=os.path.join(IMG_PATH, "close.png"))
     toggle = Button(menuBar_Frame, image=img, bd=0, bg='#6666ff', command=pop_menu)
     toggle.image = img
     toggle.place(x=5, y=5)
-    homeimg = PhotoImage(file="../../img/home.png")
+    homeimg = PhotoImage(file=os.path.join(IMG_PATH, "home.png"))
     home = Button(menuBar_Frame, image=homeimg, bd=0, bg='#6666ff', command=lambda: switch_indicator(home_indicator, home_page))
     home.image = homeimg
     home.place(x=5, y=150)
@@ -544,7 +561,7 @@ def akun_page():
     home_indicator.place(x=0, y=150, width=2, height=30)
     home_label = Button(menuBar_Frame, text="Home", font=('Microsoft Yahei UI Light Bold', 14), bg='#6666ff', fg='white',bd=0, command=lambda: switch_indicator(home_indicator, home_page),width=10)
     home_label.place(x=50, y=150)
-    akunimg = PhotoImage(file="../../img/user.png")
+    akunimg = PhotoImage(file=os.path.join(IMG_PATH, "user.png"))
     akun = Button(menuBar_Frame, image=akunimg, bd=0, bg='#6666ff', command= lambda: switch_indicator(akun_indicator, akun_page))
     akun.image = akunimg
     akun.place(x=5, y=220)
@@ -552,7 +569,7 @@ def akun_page():
     akun_indicator.place(x=0, y=220, width=2, height=30)
     akun_label = Button(menuBar_Frame, text="Account", font=('Microsoft Yahei UI Light Bold', 14), bg='#6666ff', fg='white', bd=0, command= lambda: switch_indicator(akun_indicator, akun_page),width=10)
     akun_label.place(x=50, y=220)
-    warehouseimg = PhotoImage(file="../../img/warehouse.png")
+    warehouseimg = PhotoImage(file=os.path.join(IMG_PATH, "warehouse.png"))
     warehouse = Button(menuBar_Frame, image=warehouseimg, bd=0, bg='#6666ff', command= lambda: switch_indicator(warehouse_indicator, warehouse_page))
     warehouse.image = warehouseimg
     warehouse.place(x=5, y=290)
@@ -560,7 +577,7 @@ def akun_page():
     warehouse_indicator.place(x=0, y=290, width=2, height=30)
     warehouse_label = Button(menuBar_Frame, text="Warehouse", font=('Microsoft Yahei UI Light Bold', 14), bg='#6666ff', fg='white', bd=0, command= lambda: switch_indicator(warehouse_indicator, warehouse_page),width=10)
     warehouse_label.place(x=50, y=290)
-    itemimg = PhotoImage(file="../../img/product.png")
+    itemimg = PhotoImage(file=os.path.join(IMG_PATH, "product.png"))
     item = Button(menuBar_Frame, image=itemimg, bd=0, bg='#6666ff', command= lambda: switch_indicator(item_indicator, item_page))
     item.image = itemimg
     item.place(x=5, y=360)
@@ -568,7 +585,7 @@ def akun_page():
     item_indicator.place(x=0, y=360, width=2, height=30)
     item_label = Button(menuBar_Frame, text="Item", font=('Microsoft Yahei UI Light Bold', 14), bg='#6666ff', fg='white', bd=0, command= lambda: switch_indicator(item_indicator, item_page),width=10)
     item_label.place(x=50, y=360)
-    logoutimg = PhotoImage(file="../../img/logout.png")
+    logoutimg = PhotoImage(file=os.path.join(IMG_PATH, "logout.png"))
     logoutb = Button(menuBar_Frame, image=logoutimg, bd=0, bg='#6666ff', command=logout)
     logoutb.image = logoutimg
     logoutb.place(x=10, y=550)
@@ -638,12 +655,12 @@ def warehouse_page():
     menuBar_Frame.pack(side=LEFT, fill=Y, padx=3, pady=4)
     menuBar_Frame.pack_propagate(False)
     menuBar_Frame.configure(width=45, bg='#6666ff')  
-    img = PhotoImage(file="../../img/toggle.png")
-    close = PhotoImage(file="../../img/close.png")
+    img = PhotoImage(file=os.path.join(IMG_PATH, "toggle.png"))
+    close = PhotoImage(file=os.path.join(IMG_PATH, "close.png"))
     toggle = Button(menuBar_Frame, image=img, bd=0, bg='#6666ff', command=pop_menu)
     toggle.image = img
     toggle.place(x=5, y=5)
-    homeimg = PhotoImage(file="../../img/home.png")
+    homeimg = PhotoImage(file=os.path.join(IMG_PATH, "home.png"))
     home = Button(menuBar_Frame, image=homeimg, bd=0, bg='#6666ff', command=lambda: switch_indicator(home_indicator, home_page))
     home.image = homeimg
     home.place(x=5, y=150)
@@ -651,7 +668,7 @@ def warehouse_page():
     home_indicator.place(x=0, y=150, width=2, height=30)
     home_label = Button(menuBar_Frame, text="Home", font=('Microsoft Yahei UI Light Bold', 14), bg='#6666ff', fg='white',bd=0, command=lambda: switch_indicator(home_indicator, home_page),width=10)
     home_label.place(x=50, y=150)
-    akunimg = PhotoImage(file="../../img/user.png")
+    akunimg = PhotoImage(file=os.path.join(IMG_PATH, "user.png"))
     akun = Button(menuBar_Frame, image=akunimg, bd=0, bg='#6666ff', command= lambda: switch_indicator(akun_indicator, akun_page))
     akun.image = akunimg
     akun.place(x=5, y=220)
@@ -659,7 +676,7 @@ def warehouse_page():
     akun_indicator.place(x=0, y=220, width=2, height=30)
     akun_label = Button(menuBar_Frame, text="Account", font=('Microsoft Yahei UI Light Bold', 14), bg='#6666ff', fg='white', bd=0, command= lambda: switch_indicator(akun_indicator, akun_page),width=10)
     akun_label.place(x=50, y=220)
-    warehouseimg = PhotoImage(file="../../img/warehouse.png")
+    warehouseimg = PhotoImage(file=os.path.join(IMG_PATH, "warehouse.png"))
     warehouse = Button(menuBar_Frame, image=warehouseimg, bd=0, bg='#6666ff', command= lambda: switch_indicator(warehouse_indicator, warehouse_page))
     warehouse.image = warehouseimg
     warehouse.place(x=5, y=290)
@@ -667,7 +684,7 @@ def warehouse_page():
     warehouse_indicator.place(x=0, y=290, width=2, height=30)
     warehouse_label = Button(menuBar_Frame, text="Warehouse", font=('Microsoft Yahei UI Light Bold', 14), bg='#6666ff', fg='white', bd=0, command= lambda: switch_indicator(warehouse_indicator, warehouse_page),width=10)
     warehouse_label.place(x=50, y=290)
-    itemimg = PhotoImage(file="../../img/product.png")
+    itemimg = PhotoImage(file=os.path.join(IMG_PATH, "product.png"))
     item = Button(menuBar_Frame, image=itemimg, bd=0, bg='#6666ff', command= lambda: switch_indicator(item_indicator, item_page))
     item.image = itemimg
     item.place(x=5, y=360)
@@ -675,7 +692,7 @@ def warehouse_page():
     item_indicator.place(x=0, y=360, width=2, height=30)
     item_label = Button(menuBar_Frame, text="Item", font=('Microsoft Yahei UI Light Bold', 14), bg='#6666ff', fg='white', bd=0, command= lambda: switch_indicator(item_indicator, item_page),width=10)
     item_label.place(x=50, y=360)
-    logoutimg = PhotoImage(file="../../img/logout.png")
+    logoutimg = PhotoImage(file=os.path.join(IMG_PATH, "logout.png"))
     logoutb = Button(menuBar_Frame, image=logoutimg, bd=0, bg='#6666ff', command=logout)
     logoutb.image = logoutimg
     logoutb.place(x=10, y=550)
@@ -687,6 +704,10 @@ def warehouse_page():
     warehouse_frame.configure(width=900, height=900, bg="white")
     label = Label(warehouse_frame,text="Warehouse", font=('Microsoft Yahei UI Light', 23 , 'bold'), fg='#6666ff', bg='white')
     label.place(x=400, y=50)
+
+    # Instantiate and display the WarehouseGUI
+    warehouse_gui = WarehouseGUI(warehouse_frame)
+    warehouse_gui.main_frame.pack(fill=BOTH, expand=True)
 
 
 def item_page():
@@ -716,12 +737,12 @@ def item_page():
     menuBar_Frame.pack(side=LEFT, fill=Y, padx=3, pady=4)
     menuBar_Frame.pack_propagate(False)
     menuBar_Frame.configure(width=45, bg='#6666ff')  
-    img = PhotoImage(file="../../img/toggle.png")
-    close = PhotoImage(file="../../img/close.png")
+    img = PhotoImage(file=os.path.join(IMG_PATH, "toggle.png"))
+    close = PhotoImage(file=os.path.join(IMG_PATH, "close.png"))
     toggle = Button(menuBar_Frame, image=img, bd=0, bg='#6666ff', command=pop_menu)
     toggle.image = img
     toggle.place(x=5, y=5)
-    homeimg = PhotoImage(file="../../img/home.png")
+    homeimg = PhotoImage(file=os.path.join(IMG_PATH, "home.png"))
     home = Button(menuBar_Frame, image=homeimg, bd=0, bg='#6666ff', command=lambda: switch_indicator(home_indicator, home_page))
     home.image = homeimg
     home.place(x=5, y=150)
@@ -729,7 +750,7 @@ def item_page():
     home_indicator.place(x=0, y=150, width=2, height=30)
     home_label = Button(menuBar_Frame, text="Home", font=('Microsoft Yahei UI Light Bold', 14), bg='#6666ff', fg='white',bd=0, command=lambda: switch_indicator(home_indicator, home_page),width=10)
     home_label.place(x=50, y=150)
-    akunimg = PhotoImage(file="../../img/user.png")
+    akunimg = PhotoImage(file=os.path.join(IMG_PATH, "user.png"))
     akun = Button(menuBar_Frame, image=akunimg, bd=0, bg='#6666ff', command= lambda: switch_indicator(akun_indicator, akun_page))
     akun.image = akunimg
     akun.place(x=5, y=220)
@@ -737,7 +758,7 @@ def item_page():
     akun_indicator.place(x=0, y=220, width=2, height=30)
     akun_label = Button(menuBar_Frame, text="Account", font=('Microsoft Yahei UI Light Bold', 14), bg='#6666ff', fg='white', bd=0, command= lambda: switch_indicator(akun_indicator, akun_page),width=10)
     akun_label.place(x=50, y=220)
-    warehouseimg = PhotoImage(file="../../img/warehouse.png")
+    warehouseimg = PhotoImage(file=os.path.join(IMG_PATH, "warehouse.png"))
     warehouse = Button(menuBar_Frame, image=warehouseimg, bd=0, bg='#6666ff', command= lambda: switch_indicator(warehouse_indicator, warehouse_page))
     warehouse.image = warehouseimg
     warehouse.place(x=5, y=290)
@@ -745,7 +766,7 @@ def item_page():
     warehouse_indicator.place(x=0, y=290, width=2, height=30)
     warehouse_label = Button(menuBar_Frame, text="Warehouse", font=('Microsoft Yahei UI Light Bold', 14), bg='#6666ff', fg='white', bd=0, command= lambda: switch_indicator(warehouse_indicator, warehouse_page),width=10)
     warehouse_label.place(x=50, y=290)
-    itemimg = PhotoImage(file="../../img/product.png")
+    itemimg = PhotoImage(file=os.path.join(IMG_PATH, "product.png"))
     item = Button(menuBar_Frame, image=itemimg, bd=0, bg='#6666ff', command= lambda: switch_indicator(item_indicator, item_page))
     item.image = itemimg
     item.place(x=5, y=360)
@@ -753,7 +774,7 @@ def item_page():
     item_indicator.place(x=0, y=360, width=2, height=30)
     item_label = Button(menuBar_Frame, text="Item", font=('Microsoft Yahei UI Light Bold', 14), bg='#6666ff', fg='white', bd=0, command= lambda: switch_indicator(item_indicator, item_page),width=10)
     item_label.place(x=50, y=360)
-    logoutimg = PhotoImage(file="../../img/logout.png")
+    logoutimg = PhotoImage(file=os.path.join(IMG_PATH, "logout.png"))
     logoutb = Button(menuBar_Frame, image=logoutimg, bd=0, bg='#6666ff', command=logout)
     logoutb.image = logoutimg
     logoutb.place(x=10, y=550)
@@ -765,11 +786,11 @@ def item_page():
     item_frame.configure(width=900, height=900, bg="white")
     label = Label(item_frame,text="Item", font=('Microsoft Yahei UI Light', 23 , 'bold'), fg='#6666ff', bg='white')
     label.place(x=400, y=50)
-root = Tk()
-root.title("SIGMA")
-root.geometry("900x600")
-root.config(bg="white")
-root.resizable(False, False)
+
+    # Instantiate and display the WarehouseGUI
+    item_gui = ItemGUI(item_frame)
+    item_gui.main_frame.pack(fill=BOTH, expand=True)
+
 # Halaman login
 create_database()
 sign_in_page()
