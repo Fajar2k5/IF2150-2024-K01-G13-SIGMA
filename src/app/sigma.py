@@ -334,15 +334,15 @@ def home_page():
 
     def fold_menu():
         menuBar_Frame.configure(width=45)
-        toggle.configure(image=img, command=pop_menu)
+        toggle.configure(image=open, command=pop_menu)
     menuBar_Frame = Frame(root)
     menuBar_Frame.pack(side=LEFT, fill=Y, padx=3, pady=4)
     menuBar_Frame.pack_propagate(False)
     menuBar_Frame.configure(width=45, bg='#6666ff')  
-    img = PhotoImage(file=os.path.join(IMG_PATH, "toggle.png"))
+    open = PhotoImage(file=os.path.join(IMG_PATH, "toggle.png"))
     close = PhotoImage(file=os.path.join(IMG_PATH, "close.png"))
-    toggle = Button(menuBar_Frame, image=img, bd=0, bg='#6666ff', command=pop_menu)
-    toggle.image = img
+    toggle = Button(menuBar_Frame, image=open, bd=0, bg='#6666ff', command=pop_menu)
+    toggle.image = open
     toggle.place(x=5, y=5)
     homeimg = PhotoImage(file=os.path.join(IMG_PATH, "home.png"))
     home = Button(menuBar_Frame, image=homeimg, bd=0, bg='#6666ff', command=lambda: switch_indicator(home_indicator, home_page))
@@ -394,8 +394,12 @@ def home_page():
     home_frame.pack()
     home_frame.pack_propagate(False)
     home_frame.configure(width=900, height=900, bg="white")
-    label = Label(home_frame,text="Home", font=('Microsoft Yahei UI Light', 23 , 'bold'), fg='#6666ff', bg='white')
-    label.place(x=400, y=50)
+    label = Label(home_frame,text="Welcome to Sigma!", font=('Microsoft Yahei UI Light', 23 , 'bold'), fg='#6666ff', bg='white')
+    label.place(x=300, y=50)
+    img = PhotoImage(file=os.path.join(IMG_PATH, "homebg.png"))
+    label1 = Label(home_frame, image=img, bg="white")
+    label1.image = img
+    label1.place(x=150, y=150)
 
 def akun_page():
     def logout():
