@@ -189,8 +189,16 @@ class ItemGUI:
                             values[1], values[2], values[3])
         if dialog.result:
             name, desc, volume = dialog.result
-            item.update_item(values[0], name, desc, float(volume))
+            success, message = item.update_item(values[0], name, desc, float(volume))
+            
+            if success:
+                messagebox.showinfo("Success", message)
+                self.refresh_warehouse_list()
+            else:
+                messagebox.showerror("Edit Item", message)
+            
             self.refresh_item_list()
+            
 
     def delete_item(self):
         """

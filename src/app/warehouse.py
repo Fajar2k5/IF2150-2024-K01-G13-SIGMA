@@ -124,19 +124,19 @@ def edit_warehouse(warehouse_id: int, name: str = None,
     cursor = conn.cursor()
 
     try:
-        # Check if the warehouse exists
+        # Check kalau warehouse ada
         cursor.execute("SELECT * FROM Warehouse WHERE id = ?", (warehouse_id,))
         existing_warehouse = cursor.fetchone()
         if not existing_warehouse:
             return False, f"Warehouse with ID {warehouse_id} does not exist."
 
-        # Check if the new name (if provided) already exists in another warehouse
+        # Check kalau warehouse dengan nama serupa sudah ada
         if name:
             cursor.execute("SELECT id FROM Warehouse WHERE name = ? AND id != ?", (name, warehouse_id))
             if cursor.fetchone():
                 return False, f"A warehouse with the name '{name}' already exists."
 
-        # Build the UPDATE query dynamically
+        # update query
         updates = []
         params = []
 

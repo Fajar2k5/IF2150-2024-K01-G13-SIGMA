@@ -248,12 +248,14 @@ class WarehouseGUI:
             name, desc, capacity = dialog.result
             success, message = warehouse.edit_warehouse(values[0], name, desc, float(capacity))
             
-            # Show message based on success or failure
             if success:
                 messagebox.showinfo("Success", message)
                 self.refresh_warehouse_list()
             else:
                 messagebox.showerror("Edit Warehouse", message)
+            
+            self.refresh_warehouse_list()
+
 
     def delete_warehouse(self):
         """
