@@ -45,7 +45,7 @@ Shield’s Inventory Goods Management Assistance (SIGMA) adalah sebuah perangkat
    - Menampilkan daftar item
 
 ### Daftar Tabel Basis Data
-1, Tabel `Warehouse`
+1 Tabel `Warehouse`
 | Kolom           | Tipe Data  | Deskripsi               |
 |-----------------|------------|-------------------------|
 | id              | INTEGER    | Primary Key             |
@@ -54,7 +54,7 @@ Shield’s Inventory Goods Management Assistance (SIGMA) adalah sebuah perangkat
 | capacity        | REAL       | Kapasitas warehouse     |
 | used_capacity   | REAL       | Kapasitas yang terpakai |
 
-2. Tabel `items`
+2 Tabel `items`
 | Kolom           | Tipe Data  | Deskripsi               |
 |-----------------|------------|-------------------------|
 | id              | INTEGER    | Primary Key             |
@@ -62,7 +62,7 @@ Shield’s Inventory Goods Management Assistance (SIGMA) adalah sebuah perangkat
 | description     | TEXT       | Deskripsi item          |
 | volume          | INTEGER    | Volume item             |
 
-3. Tabel `warehouseitem`
+3 Tabel `warehouseitem`
 | Kolom           | Tipe Data  | Deskripsi                |
 |-----------------|------------|--------------------------|
 | id              | INTEGER    | Primary Key              |
@@ -70,7 +70,7 @@ Shield’s Inventory Goods Management Assistance (SIGMA) adalah sebuah perangkat
 | item_id         | INTEGER    | Foreign Key ke Items     |
 | quantity        | INTEGER    | Jumlah item              |
 
-4. Tabel `accounts`
+4 Tabel `accounts`
 | Kolom           | Tipe Data  | Deskripsi               |
 |-----------------|------------|-------------------------|
 | id              | INTEGER    | Primary Key             |
